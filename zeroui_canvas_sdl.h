@@ -2,6 +2,7 @@
 #define ZEROUI_CANVAS_SDL_H
 
 #include "zeroui_common.h"
+#include "zeroui_color.h"
 #include "zeroui_canvas_sdl.h"
 //#include <iostream>
 #include <SDL2/SDL.h>

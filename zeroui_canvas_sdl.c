@@ -70,7 +70,12 @@ void zeroui_canvas_fill_rect(zeroui_canvas_t *canvas, zeroui_int_t x, zeroui_int
 }
 
 void zeroui_canvas_set_draw_color(zeroui_canvas_t *canvas, zeroui_rgba_t color) {
-    SDL_SetRenderDrawColor(canvas->renderer, color.r, color.g, color.b, color.a);
+    uint8_t r = (color & 0xFF000000) >> 24;
+    uint8_t g = (color & 0x00FF0000) >> 16;
+    uint8_t b = (color & 0x0000FF00) >> 8;
+    uint8_t a = color & 0x000000FF;
+    
+    SDL_SetRenderDrawColor(canvas->renderer, r, g, b, a);
 }
 
 

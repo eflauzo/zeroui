@@ -5,7 +5,8 @@
 #include "zeroui.h"
 
 zeroui_control_t container;
-zeroui_context_t ctx;
+zeroui_context_t *ctx;
+//zeroui_context_t ctx;
 
 void mainloop(void *arg)
 {      
@@ -53,13 +54,13 @@ void mainloop(void *arg)
 EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent *e, void *userData)
 {
     printf("You pressed key %lu\n", e->which);
-    return 1;
+    return 0;
 }
 
 EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userData)
 {   
     printf("MOUSE    %ld   %ld\n",e->canvasX, e->canvasY);
-    void* ptr = zeroui_select_bf_pick(&ctx.select_bf, e->canvasX, e->canvasY);
+    void* ptr = zeroui_select_bf_pick(&ctx->select_bf, e->canvasX, e->canvasY);
     if (ptr!=NULL){
         printf("Something ...\n");
     }
@@ -104,17 +105,47 @@ int main()
     zeroui_canvas_t canvas;
     zeroui_canvas_init(&canvas);
 
-    zeroui_style_t style;
-    zeroui_style_init_monochrome_dark(&style);
+    //zeroui_style_t style;
+    //zeroui_style_init_monochrome_dark(&style);
 
     
-    zeroui_context_init(&ctx, &canvas, &style);
+    //zeroui_context_init(ctx, &canvas, &style);
+
+    zeroui_control_style_t zeroui_control_style_monochrome_light = {
+    .border_color = ZEROUI_COLOR_BLACK,
+    .control_face = ZEROUI_COLOR_BLACK,
+    .control_background = ZEROUI_COLOR_WHITE,
+    .border_width = 1,
+    .margin = 1 
+};
+
+zeroui_control_style_t zeroui_control_style_monochrome_dark = {
+    .border_color = ZEROUI_COLOR_WHITE,
+    .control_face = ZEROUI_COLOR_WHITE,
+    .control_background = ZEROUI_COLOR_BLACK,
+    .border_width = 1,   
+    .margin = 1 
+};
+
+
+    zeroui_style_t monozeroui_style_monochrome_dark;
+    monozeroui_style_monochrome_dark.backgroud_color = ZEROUI_COLOR_BLACK;
+    monozeroui_style_monochrome_dark.gap = 1;
+    monozeroui_style_monochrome_dark.regular = &zeroui_control_style_monochrome_dark;
+    monozeroui_style_monochrome_dark.focus = &zeroui_control_style_monochrome_dark;
+    monozeroui_style_monochrome_dark.input_focus = &zeroui_control_style_monochrome_light;
+
+
+
+    zeroui_mempool_t mempool;
+    ctx = zeroui_context_create(&mempool, &canvas, &monozeroui_style_monochrome_dark);
 
     //zeroui_control_t btn;
     zeroui_container_attrib_t attrib_container;
-    attrib_container.w = 200;
-    attrib_container.h = 200;
-    zeroui_control_init_container(&ctx, &container, &attrib_container);
+    //attrib_container.w = 200;
+    //attrib_container.h = 200;
+    //zeroui_context_t *ctx = 
+    zeroui_control_init_container(ctx, &container, &attrib_container);
 
 
 
@@ -126,25 +157,25 @@ int main()
     attrib_btn1.text = "btn1";
     attrib_btn1.font = &regular;
     attrib_btn1.on_click = &btn1_on_click;
-    zeroui_control_init_button(&ctx, &btn1, &attrib_btn1);
+    zeroui_control_init_button(ctx, &btn1, &attrib_btn1);
 
     zeroui_control_t btn2;
     zeroui_button_attrib_t attrib_btn2;
     zeroui_button_attrib_init(&attrib_btn2);
     attrib_btn2.text = " This is 2 \0";
     attrib_btn2.font = &regular;
-    zeroui_control_init_button(&ctx, &btn2, &attrib_btn2);
+    zeroui_control_init_button(ctx, &btn2, &attrib_btn2);
 
     zeroui_control_t btn3;
     zeroui_button_attrib_t attrib_btn3;
     zeroui_button_attrib_init(&attrib_btn3);
     attrib_btn3.text = " I am 3 \0";
     attrib_btn3.font = &regular;
-    zeroui_control_init_button(&ctx, &btn3, &attrib_btn3);
+    zeroui_control_init_button(ctx, &btn3, &attrib_btn3);
 
     zeroui_control_t second_col;
     zeroui_container_attrib_t second_col_attrib_container;
-    zeroui_control_init_container(&ctx, &second_col, &second_col_attrib_container);
+    zeroui_control_init_container(ctx, &second_col, &second_col_attrib_container);
 
     zeroui_layout_t v_layout;
     zeroui_layout_init_vertical(&v_layout);
@@ -162,9 +193,9 @@ int main()
     const int simulate_infinite_loop = 1; // call the function repeatedly
     const int fps = 10; // call the function as fast as the browser wants to render (typically 60fps)
 
-    emscripten_set_keypress_callback(0, 0, 1, key_callback);
+    emscripten_set_keydown_callback(0, 0, 1, key_callback);
     emscripten_set_click_callback(0, 0, 1, mouse_callback);
-    emscripten_set_main_loop_arg(mainloop, &ctx, fps, simulate_infinite_loop);
+    emscripten_set_main_loop_arg(mainloop, ctx, fps, simulate_infinite_loop);
     emscripten_set_click_callback(0, 0, 1, mouse_callback);
     
     zeroui_canvas_destroy(&canvas);
