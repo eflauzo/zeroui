@@ -3,6 +3,8 @@
 
 #include "zeroui_color.h"
 #include "zeroui_common.h"
+#include "zeroui_typograph.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,6 +19,7 @@ struct zeroui_control_style_t_ {
     zeroui_rgba_t control_background;
     zeroui_int_t border_width;
     zeroui_int_t margin;
+    zeroui_monospace_font_t *control_font;
 };
 
 typedef struct zeroui_style_t_ zeroui_style_t; 

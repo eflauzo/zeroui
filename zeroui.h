@@ -9,12 +9,16 @@
 #include "zeroui_mempool.h"
 #include "zeroui_canvas.h"
 #include "zeroui_typograph.h"
-#include "zeroui_controls.h"
+#include "zeroui_control.h"
+#include "zeroui_control_button.h"
+#include "zeroui_control_edit.h"
+#include "zeroui_control_container.h"
+#include "zeroui_layout.h"
 #include "zeroui_context.h"
 #include "zeroui_color.h"
 #include "zeroui_style.h"
 
-
+ 
 
 //typedef zeroio_int int16_t;
 

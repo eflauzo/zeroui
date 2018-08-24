@@ -12,6 +12,11 @@ extern "C" {
 
 typedef uint16_t zeroui_int_t;
 typedef int16_t zeroui_text_pos_t;
+typedef uint16_t zeroui_strlen_t;
+typedef uint8_t zeroui_error_t;
+
+#define ZEROUI_ERROR_NO_ERROR 0
+#define ZEROUI_ERROR_WOULD_OVERFLOW 1
 
 
 /*

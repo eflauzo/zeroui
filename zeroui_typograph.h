@@ -18,6 +18,7 @@ struct zeroui_monospace_font_t_ {
 
 };
 
+zeroui_monospace_font_t zeroui_font_regular;
 
 zeroui_int_t zeroui_monospace_get_char_w(zeroui_monospace_font_t *font);
 zeroui_int_t zeroui_monospace_get_char_h(zeroui_monospace_font_t *font);

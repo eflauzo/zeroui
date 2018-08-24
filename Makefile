@@ -1,6 +1,6 @@
 
 EMCC = emcc
-SOURCES = core.c zeroui.c zeroui_canvas_sdl.c zeroui_common.c zeroui_context.c zeroui_typograph.c zeroui_controls.c zeroui_list.c zeroui_select_bf.c zeroui_mempool.c
+SOURCES = core.c zeroui*.c zeroui_canvas_sdl.c zeroui_common.c zeroui_context.c zeroui_typograph.c zeroui_control.c zeroui_control_button.c zeroui_control_edit.c zeroui_control_container.c zeroui_layout.c zeroui_list.c zeroui_select_bf.c zeroui_mempool.c zeroui_text_utils.c
 SOURCES_EXTRA = console.c
 
 EMFLAGS := $(EMFLAGS) -s WASM=1 -s USE_SDL=2 -O3

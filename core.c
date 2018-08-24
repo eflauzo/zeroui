@@ -4,7 +4,7 @@
 //#include <cstdlib>
 #include "zeroui.h"
 
-zeroui_control_t container;
+zeroui_control_t *container;
 zeroui_context_t *ctx;
 //zeroui_context_t ctx;
 
@@ -15,7 +15,7 @@ void mainloop(void *arg)
 
     zeroui_canvas_set_draw_color(ctx->canvas, ctx->style->backgroud_color);
     zeroui_canvas_clear(ctx->canvas);
-    container.visualize(ctx, &container, 20, 20, 100, 40);
+    container->visualize(ctx, container, 20, 20, 100, 40);
     zeroui_canvas_flush(ctx->canvas);
 
 
@@ -54,6 +54,11 @@ void mainloop(void *arg)
 EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent *e, void *userData)
 {
     printf("You pressed key %lu\n", e->which);
+    if (ctx->input_focus != NULL){
+        if (ctx->input_focus->on_key_down != NULL){
+            ctx->input_focus->on_key_down(ctx->input_focus, ctx, e->which);
+        }
+    }
     return 0;
 }
 
@@ -63,6 +68,11 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userD
     void* ptr = zeroui_select_bf_pick(&ctx->select_bf, e->canvasX, e->canvasY);
     if (ptr!=NULL){
         printf("Something ...\n");
+        zeroui_control_t *ctrl = (zeroui_control_t *)ptr;
+        if (ctrl->selectable){
+            ctx->input_focus = ctrl;
+        }
+
     }
 
     /*
@@ -111,12 +121,14 @@ int main()
     
     //zeroui_context_init(ctx, &canvas, &style);
 
-    zeroui_control_style_t zeroui_control_style_monochrome_light = {
+
+zeroui_control_style_t zeroui_control_style_monochrome_light = {
     .border_color = ZEROUI_COLOR_BLACK,
     .control_face = ZEROUI_COLOR_BLACK,
     .control_background = ZEROUI_COLOR_WHITE,
     .border_width = 1,
-    .margin = 1 
+    .margin = 1,
+    .control_font = &zeroui_font_regular
 };
 
 zeroui_control_style_t zeroui_control_style_monochrome_dark = {
@@ -124,16 +136,18 @@ zeroui_control_style_t zeroui_control_style_monochrome_dark = {
     .control_face = ZEROUI_COLOR_WHITE,
     .control_background = ZEROUI_COLOR_BLACK,
     .border_width = 1,   
-    .margin = 1 
+    .margin = 1,
+    .control_font = &zeroui_font_regular
 };
 
 
-    zeroui_style_t monozeroui_style_monochrome_dark;
-    monozeroui_style_monochrome_dark.backgroud_color = ZEROUI_COLOR_BLACK;
-    monozeroui_style_monochrome_dark.gap = 1;
-    monozeroui_style_monochrome_dark.regular = &zeroui_control_style_monochrome_dark;
-    monozeroui_style_monochrome_dark.focus = &zeroui_control_style_monochrome_dark;
-    monozeroui_style_monochrome_dark.input_focus = &zeroui_control_style_monochrome_light;
+zeroui_style_t monozeroui_style_monochrome_dark = {
+    .backgroud_color = ZEROUI_COLOR_BLACK,
+    .gap = 1,
+    .regular = &zeroui_control_style_monochrome_dark,
+    .focus = &zeroui_control_style_monochrome_dark,
+    .input_focus = &zeroui_control_style_monochrome_light
+};
 
 
 
@@ -141,16 +155,16 @@ zeroui_control_style_t zeroui_control_style_monochrome_dark = {
     ctx = zeroui_context_create(&mempool, &canvas, &monozeroui_style_monochrome_dark);
 
     //zeroui_control_t btn;
-    zeroui_container_attrib_t attrib_container;
+    //zeroui_container_attrib_t attrib_container;
     //attrib_container.w = 200;
     //attrib_container.h = 200;
     //zeroui_context_t *ctx = 
-    zeroui_control_init_container(ctx, &container, &attrib_container);
+    //zeroui_control_init_container(ctx, &container, &attrib_container);
 
 
 
-    zeroui_monospace_font_t regular;
 
+    /*
     zeroui_control_t btn1;
     zeroui_button_attrib_t attrib_btn1;
     zeroui_button_attrib_init(&attrib_btn1);
@@ -158,7 +172,12 @@ zeroui_control_style_t zeroui_control_style_monochrome_dark = {
     attrib_btn1.font = &regular;
     attrib_btn1.on_click = &btn1_on_click;
     zeroui_control_init_button(ctx, &btn1, &attrib_btn1);
+    */
+    zeroui_control_t *btn1 = zeroui_new_button(ctx, "Hello There");
+    zeroui_control_t *btn2 = zeroui_new_button(ctx, "Hello There2");
+    zeroui_control_t *btn3 = zeroui_new_button(ctx, "Hello There3");
 
+    /*
     zeroui_control_t btn2;
     zeroui_button_attrib_t attrib_btn2;
     zeroui_button_attrib_init(&attrib_btn2);
@@ -172,22 +191,40 @@ zeroui_control_style_t zeroui_control_style_monochrome_dark = {
     attrib_btn3.text = " I am 3 \0";
     attrib_btn3.font = &regular;
     zeroui_control_init_button(ctx, &btn3, &attrib_btn3);
+    */
 
-    zeroui_control_t second_col;
-    zeroui_container_attrib_t second_col_attrib_container;
-    zeroui_control_init_container(ctx, &second_col, &second_col_attrib_container);
+   /*
+    zeroui_control_t edt;
+    zeroui_edit_attrib_t attrib_edt;
+    zeroui_edit_attrib_init(&attrib_edt);
+    //attrib_btn3.text = " I am 3 \0";
+    attrib_btn3.font = &regular;
+    zeroui_control_init_edit(ctx, &edt, &attrib_edt);
+    */
 
-    zeroui_layout_t v_layout;
-    zeroui_layout_init_vertical(&v_layout);
-    second_col.contains = &v_layout;
-    zeroui_list_append(&v_layout.controls, &btn2);
-    zeroui_list_append(&v_layout.controls, &btn3);
 
-    zeroui_layout_t layout;
-    zeroui_layout_init_horizontal(&layout);
-    container.contains = &layout;
-    zeroui_list_append(&layout.controls, &btn1);
-    zeroui_list_append(&layout.controls, &second_col);
+    zeroui_control_t *edt = zeroui_new_edit(ctx);
+
+    //zeroui_control_t second_col;
+    //zeroui_container_attrib_t second_col_attrib_container;
+    //zeroui_control_init_container(ctx, &second_col, &second_col_attrib_container);
+
+    
+    zeroui_layout_t *v_layout = zeroui_new_vertical_layout(ctx);
+    zeroui_control_t *second_col = zeroui_new_container(ctx, v_layout);
+    //zeroui_layout_init_vertical(&v_layout);
+    //second_col.contains = &v_layout;
+    zeroui_list_append(&v_layout->controls, btn2);
+    zeroui_list_append(&v_layout->controls, btn3);
+    zeroui_list_append(&v_layout->controls, edt);
+
+    //zeroui_layout_t layout;
+    //zeroui_layout_init_horizontal(&layout);
+    //container.contains = &layout;
+    zeroui_layout_t *h_layout = zeroui_new_horizontal_layout(ctx);
+    container = zeroui_new_container(ctx, h_layout);
+    zeroui_list_append(&h_layout->controls, btn1);
+    zeroui_list_append(&h_layout->controls, second_col);
     
     
     const int simulate_infinite_loop = 1; // call the function repeatedly
